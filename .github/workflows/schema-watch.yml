@@ -40,7 +40,7 @@ jobs:
         run: uv run pytest --cov=artifact_parser --cov=codegen --cov-fail-under=100
 
       - name: Open a PR if schemas drifted
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: schema-watch/regen
           title: "chore: regenerate dbt models from newly published schemas"
