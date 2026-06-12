@@ -1,5 +1,15 @@
 # artifact-parser
 
+[![PyPI version](https://badge.fury.io/py/artifact-parser.svg)](https://pypi.org/project/artifact-parser/)
+![python-lib](https://img.shields.io/badge/Library-Python-FFCE3E?labelColor=14354C&logo=python&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![python](https://img.shields.io/badge/Python-3.10|3.11|3.12|3.13-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
+[![CI](https://github.com/datnguye/artifact-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/datnguye/artifact-parser/actions/workflows/ci.yml)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg?style=flat&logo=pytest&logoColor=white)](https://github.com/datnguye/artifact-parser/actions/workflows/ci.yml)
+
+[![artifact-parser stars](https://img.shields.io/github/stars/datnguye/artifact-parser.svg?logo=github&style=for-the-badge&label=Star%20this%20repo)](https://github.com/datnguye/artifact-parser)
+[![buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?logo=buy-me-a-coffee&logoColor=white&labelColor=ff813f&style=for-the-badge)](https://www.buymeacoffee.com/datnguye)
+
 A small, pluggable framework for turning the JSON artifacts that data tools spit
 out into typed, validated Python objects. Point it at a blob, get back a pydantic
 model — no manual key-spelunking, no guessing which schema version you're holding.
@@ -143,3 +153,12 @@ This repo is wired for [Claude Code](https://claude.com/claude-code): a project
 [context7](https://github.com/upstash/context7) MCP for pulling fresh library
 docs. See `CLAUDE.md` for the full tour. It will not write your code for you, but
 it tries hard to keep you from shipping a failing coverage gate.
+
+## Support
+
+If this saved you from hand-spelunking a `manifest.json`, consider fuelling the
+next release:
+
+- ☕ [Buy me a coffee](https://www.buymeacoffee.com/datnguye)
+
+[![buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?logo=buy-me-a-coffee&logoColor=white&labelColor=ff813f&style=for-the-badge)](https://www.buymeacoffee.com/datnguye)
