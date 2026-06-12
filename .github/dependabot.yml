@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Keep the GitHub Actions in our workflows current (and patched).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
+
+  # Track the Python dependencies declared in pyproject.toml.
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "deps"

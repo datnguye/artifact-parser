@@ -1,0 +1,58 @@
+name: Schema watch
+
+# Probe schemas.getdbt.com for newly published dbt artifact versions, regenerate
+# the models, and open a PR if anything changed. Without this, a new manifest
+# version (v13, …) ships upstream and nobody notices until a user files a bug.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies
+        run: uv sync --group dev
+
+      - name: Discover + regenerate from fresh schemas
+        run: |
+          uv run codegen dbt --discover
+          uv run ruff format .
+
+      - name: Verify the suite still passes at 100%
+        run: uv run pytest --cov=artifact_parser --cov=codegen --cov-fail-under=100
+
+      - name: Open a PR if schemas drifted
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: schema-watch/regen
+          title: "chore: regenerate dbt models from newly published schemas"
+          commit-message: "chore: regenerate dbt models from newly published schemas"
+          body: |
+            Automated by `schema-watch`. `codegen dbt --discover` found a change in
+            the versions published at schemas.getdbt.com and regenerated the models.
+
+            The 100%-coverage suite passed on the regenerated output. Review the
+            version map / new model modules before merging — a brand-new schema
+            version may want a fixture in `tests/conftest.py` and a real-artifact
+            round-trip in `tests/artifact_parser/dbt/test_roundtrip.py`.
+          add-paths: |
+            src/artifact_parser/dbt/
+            src/codegen/dbt/versions.py

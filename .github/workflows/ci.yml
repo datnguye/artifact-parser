@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Sync dependencies
+        run: uv sync --group dev
+
+      - name: Lint (ruff format-check + check)
+        run: |
+          uv run ruff format --check .
+          uv run ruff check .
+
+      - name: Test (100% coverage gate)
+        run: uv run pytest --cov=artifact_parser --cov=codegen --cov-report=term-missing --cov-fail-under=100
+
+  codegen-in-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies
+        run: uv sync --group dev
+
+      - name: Regenerate from the committed schemas
+        run: |
+          uv run codegen dbt --skip-download
+          uv run ruff format .
+
+      - name: Fail if the generated code drifted from the committed output
+        run: git diff --exit-code -- src/artifact_parser/dbt/generated

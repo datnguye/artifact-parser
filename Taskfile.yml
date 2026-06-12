@@ -1,0 +1,80 @@
+version: "3"
+
+silent: true
+
+tasks:
+  default:
+    desc: List available tasks.
+    cmds:
+      - task --list
+
+  install:
+    desc: Sync the uv environment (incl. dev group).
+    cmds:
+      - uv sync --group dev
+
+  format:
+    desc: Apply Ruff formatting and autofixes.
+    cmds:
+      - uv run ruff format .
+      - uv run ruff check --fix .
+
+  lint:
+    desc: Ruff format-check and lint (no writes).
+    cmds:
+      - uv run ruff format --check .
+      - uv run ruff check .
+
+  test:
+    desc: Pytest with the 100% coverage gate.
+    cmds:
+      - uv run pytest --cov=artifact_parser --cov=codegen --cov-report=term-missing --cov-fail-under=100
+
+  codegen:
+    desc: 'Regenerate dbt models from dbt-core schemas. Args: [type] [versions...] (e.g. `task codegen -- manifest v12`).'
+    cmds:
+      - uv run python -m codegen dbt {{.CLI_ARGS}}
+      - task: format
+
+  codegen:fresh:
+    desc: 'Download the latest dbt-core schemas AND regenerate models. Pass --ref to pin (e.g. `task codegen:fresh -- --ref 1.9.latest`).'
+    cmds:
+      - uv run python -m codegen dbt {{.CLI_ARGS}}
+      - task: format
+
+  codegen:regen:
+    desc: Regenerate all models from the *cached* schemas (no network). Run after editing resources/ by hand.
+    cmds:
+      - uv run python -m codegen dbt --skip-download
+      - task: format
+
+  # Fingerprinted: only regenerates models whose source schema JSON actually
+  # changed. `sources` are the committed schemas; `generates` are the models.
+  # `task codegen:check` is a no-op until a schema file's checksum moves, so it
+  # is cheap to wire into pre-commit / CI as a "models are in sync" gate.
+  codegen:check:
+    desc: Regenerate models only if any schema JSON changed since the last run (checksum-fingerprinted).
+    method: checksum
+    sources:
+      - src/artifact_parser/dbt/resources/**/*.json
+      - src/codegen/dbt/artifact_spec.py
+      - src/codegen/dbt/generator.py
+      - src/codegen/dbt/templates/**/*.jinja
+    generates:
+      - src/artifact_parser/dbt/generated/models/**/*.py
+      - src/artifact_parser/dbt/generated/version_map.py
+      - src/artifact_parser/dbt/generated/parser.py
+    cmds:
+      - uv run python -m codegen dbt --skip-download
+      - task: format
+
+  git-hooks:
+    desc: Install pre-commit and commit-msg git hooks.
+    cmds:
+      - uv run pre-commit install --install-hooks
+      - uv run pre-commit install --hook-type commit-msg
+
+  clean:
+    desc: Remove caches and build artefacts (leaves .venv intact).
+    cmds:
+      - rm -rf dist build .pytest_cache .ruff_cache .task .coverage coverage.xml

@@ -1,0 +1,1 @@
+"""Generated dbt artifact models."""

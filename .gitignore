@@ -24,7 +24,6 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # PyInstaller
 #   Usually these files are written by a python script from a template
@@ -216,3 +215,4 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.task/checksum/codegen-check
