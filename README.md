@@ -8,17 +8,6 @@ The framework is deliberately source-agnostic. Each **plugin** owns one family o
 artifacts and registers itself with a shared registry. The first one ships in the
 box: a full **dbt-core** parser (catalog, manifest, run-results, sources).
 
-## Table of contents
-
-- [Install](#install)
-- [Quick start](#quick-start)
-- [Supported dbt artifacts](#supported-dbt-artifacts)
-- [Architecture](#architecture)
-- [Adding a new parser](#adding-a-new-parser)
-- [Development](#development)
-  - [CI](#ci)
-- [Agentic setup](#agentic-setup)
-
 ## Install
 
 ```bash
