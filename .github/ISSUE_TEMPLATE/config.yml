@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & discussions
+    url: https://github.com/datnguye/artifact-parser/discussions
+    about: Have a question or want to discuss an idea? Start a discussion instead of an issue.

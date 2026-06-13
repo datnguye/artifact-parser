@@ -1,0 +1,96 @@
+name: Bug report
+description: Something parsed wrong, crashed, or behaved unexpectedly.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. The more concrete detail you give, the faster it gets fixed —
+        a failing artifact attached is worth a thousand words.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+      placeholder: Parsing a dbt 1.11 manifest raised N validation errors; I expected it to parse cleanly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal code or commands that trigger the bug.
+      render: python
+      placeholder: |
+        from artifact_parser.dbt import parse_manifest
+        parse_manifest(json.load(open("manifest.json")))
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Traceback / error output
+      description: Paste the full error. This is auto-formatted, no backticks needed.
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: artifact
+    attributes:
+      label: Which artifact?
+      options:
+        - catalog
+        - manifest
+        - run-results
+        - sources
+        - Not artifact-specific / other
+    validations:
+      required: false
+
+  - type: input
+    id: schema-version
+    attributes:
+      label: Artifact schema version
+      description: The `dbt_schema_version` URL or version from the artifact's `metadata` block.
+      placeholder: https://schemas.getdbt.com/dbt/manifest/v12.json
+    validations:
+      required: false
+
+  - type: input
+    id: dbt-version
+    attributes:
+      label: dbt-core version that produced the artifact
+      placeholder: "1.11.0"
+    validations:
+      required: false
+
+  - type: input
+    id: parser-version
+    attributes:
+      label: artifact-parser version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "3.12"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this isn't a duplicate.
+          required: true
+        - label: I'm on the latest released version (or noted the version above).
+          required: true
