@@ -1,0 +1,13 @@
+<svg width="360" height="80" viewBox="0 0 360 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- JSON braces -> typed box mark + typographic wordmark, matching the dbterd/dbdocs branding family -->
+  <g transform="translate(8 16)" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- left JSON brace { in accent -->
+    <path d="M14 2c-4 0-6 2-6 6v5c0 3-1.5 5-4.5 5C6.5 18 8 20 8 23v5c0 4 2 6 6 6" stroke="#2DA44E"/>
+    <!-- typed model box (the parsed result) in slate -->
+    <rect x="22" y="4" width="24" height="28" rx="3.5" stroke="#374151"/>
+    <line x1="22" y1="13" x2="46" y2="13" stroke="#374151"/>
+    <line x1="29" y1="22" x2="39" y2="22" stroke="#374151"/>
+  </g>
+  <text x="62" y="50" font-family="'JetBrains Mono', monospace, system-ui, sans-serif" font-size="32" font-weight="700" fill="#374151">artifact</text>
+  <text x="216" y="50" font-family="'JetBrains Mono', monospace, system-ui, sans-serif" font-size="32" font-weight="300" fill="#2DA44E">parser</text>
+</svg>

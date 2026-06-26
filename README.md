@@ -1,4 +1,10 @@
-# artifact-parser
+<div style="display: flex; align-items: center; justify-content: space-between;">
+  <div>
+    <h1 style="margin: 0;">artifact-parser</h1>
+    <p style="margin: 0;">Turn data-tool JSON artifacts into typed, validated Python objects</p>
+  </div>
+  <img src="docs/assets/logo.svg" alt="artifact-parser logo" width="270" height="60">
+</div>
 
 [![PyPI version](https://badge.fury.io/py/artifact-parser.svg)](https://pypi.org/project/artifact-parser/)
 ![python-lib](https://img.shields.io/badge/Library-Python-FFCE3E?labelColor=14354C&logo=python&logoColor=white)
