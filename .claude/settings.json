@@ -48,8 +48,11 @@
       }
     ]
   },
+  "enabledPlugins": {
+    "cost-statusline@status-line-cost": true
+  },
   "statusLine": {
     "type": "command",
-    "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/scripts/statusline-cost.py\""
+    "command": "\"$HOME/.claude/plugins/marketplaces/status-line-cost/scripts/claude_cost.sh\""
   }
 }
