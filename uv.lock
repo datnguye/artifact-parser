@@ -268,7 +268,7 @@ toml = [
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.71.0"
+version = "0.72.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argcomplete" },
@@ -281,9 +281,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/54/f5/f4ce23d99503b147c9ec514dc995a96d3b4d2a3284252ad665f875a3145d/datamodel_code_generator-0.71.0.tar.gz", hash = "sha256:d27cd7a0d10f9b2db74a41db7f3e050c226da9cf0afb4916a7ab56275ebacbf2", size = 1684916, upload-time = "2026-07-24T15:32:04.334Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/df/bc/a11657789f312bb788063eb549c94be02f90daf039c80752414129bf7059/datamodel_code_generator-0.72.0.tar.gz", hash = "sha256:1eb5356a75ba7c91f0265ca59e181c8da392a51ec23012f8b0d0f2d8125af5e0", size = 1808117, upload-time = "2026-08-03T18:20:37.741Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c6/4d/556cb290170f41b97ce50fd872e10a266f141d7a38352bb3071e4ae61f41/datamodel_code_generator-0.71.0-py3-none-any.whl", hash = "sha256:680b68338d59e98a0559eeb54d8e5ca33c35b3ec0bef922ec2cc783f2cb28e9a", size = 452379, upload-time = "2026-07-24T15:32:02.467Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/07/80627e062c56076cfc560a83153b4ca26df37d1bc7c4b730943641d5075f/datamodel_code_generator-0.72.0-py3-none-any.whl", hash = "sha256:04ea49686a08298bec99a4a8470f87940bacb2a50dcda262bd4c6c46b9ecc1b5", size = 495786, upload-time = "2026-08-03T18:20:36.141Z" },
 ]
 
 [[package]]
@@ -300,7 +300,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
