@@ -233,7 +233,7 @@ Each field has a precise job:
 
 To add one (call it `freshness`):
 
-```python
+```text
 ArtifactSpec(name="freshness", package="freshness", class_prefix="Freshness"),
 ```
 

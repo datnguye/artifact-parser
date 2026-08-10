@@ -7,9 +7,8 @@ from enum import Enum
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import ConfigDict, Field, constr
-
 from artifact_parser.core.base import BaseArtifactModel
+from pydantic import ConfigDict, Field, constr
 
 
 class Metadata(BaseArtifactModel):
