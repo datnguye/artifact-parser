@@ -40,7 +40,7 @@ import json
 from artifact_parser import parse
 
 artifact = json.loads(open("target/manifest.json").read())
-model = parse(artifact)          # -> a ManifestV12 (or whatever version it is)
+model = parse(artifact)  # -> a ManifestV12 (or whatever version it is)
 print(model.metadata.dbt_schema_version)
 ```
 
@@ -63,7 +63,7 @@ from artifact_parser import parse, UnknownArtifactError
 try:
     parse({"metadata": {"dbt_schema_version": "made-up/v99.json"}})
 except UnknownArtifactError as exc:
-    print(exc)   # No registered parser recognises this artifact. Tried: dbt.
+    print(exc)  # No registered parser recognises this artifact. Tried: dbt.
 ```
 
 ## Supported dbt artifacts
