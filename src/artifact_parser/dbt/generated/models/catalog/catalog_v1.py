@@ -5,9 +5,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import ConfigDict, Field
-
 from artifact_parser.core.base import BaseArtifactModel
+from pydantic import ConfigDict, Field
 
 
 class Metadata(BaseArtifactModel):

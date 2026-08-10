@@ -6,9 +6,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from pydantic import AwareDatetime, ConfigDict, Field, RootModel, constr
-
 from artifact_parser.core.base import BaseArtifactModel
+from pydantic import AwareDatetime, ConfigDict, Field, RootModel, constr
 
 
 class ManifestMetadata(BaseArtifactModel):
