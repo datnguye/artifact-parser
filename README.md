@@ -75,6 +75,40 @@ except UnknownArtifactError as exc:
 | `run-results` | v1–v6    | `parse_run_results`   | `parse_run_results_v1` … `_v6`        |
 | `sources`     | v1–v3    | `parse_sources`       | `parse_sources_v1` … `_v3`            |
 
+## dbt 2.0 parquet info schema
+
+dbt 2.0 can write a queryable "information schema" (`dbt ... --generate-info-schema`)
+to `target/info_schema/v1/<schema>.<table>.parquet`. It is its own plugin family,
+`artifact_parser.dbt_info_schema`, and the loader needs the optional `pyarrow`
+extra (everything else works without it):
+
+```bash
+pip install "artifact-parser[info-schema]"
+```
+
+```python
+from artifact_parser.dbt_info_schema import load_info_schema, parse_info_schema
+
+tables = load_info_schema("target/info_schema/v1")  # {"dbt.models": [row, ...], ...}
+info = parse_info_schema("target/info_schema/v1")  # InfoSchemaV1
+
+for model in info.dbt_models:
+    print(model.unique_id, model.config)  # JSON columns arrive as dicts/lists
+```
+
+Only the public `dbt.*` and `dbt_rt.*` tables are read; `dbt_internal.*` is
+skipped because dbt says it is not part of the contract. `InfoSchemaV1` has one
+list field per table, named after it with the dot as an underscore
+(`dbt.models` -> `dbt_models`, `dbt_rt.run_results` -> `dbt_rt_run_results`); an
+absent table is an empty list. Unknown columns are ignored and missing ones are
+`None`, so a newer dbt does not break you. The registry dispatches on a
+`dbt.project` table whose `schema_version` is known, so `parse(tables)` works too.
+Unknown versions raise `UnknownArtifactError`.
+
+There is no JSON Schema upstream, so the models are generated from a committed
+snapshot of the parquet columns: `codegen dbt-info-schema` regenerates them, and
+`--snapshot-from <info_schema/v1 dir>` re-derives the snapshot from a real run.
+
 ## Architecture
 
 ```

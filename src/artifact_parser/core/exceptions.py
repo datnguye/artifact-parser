@@ -11,3 +11,7 @@ class UnknownArtifactError(ArtifactParserError):
 
 class ParserRegistrationError(ArtifactParserError):
     """Raised when a parser is registered under a name that is already taken."""
+
+
+class OptionalDependencyError(ArtifactParserError):
+    """Raised when a feature needs an optional extra that is not installed."""

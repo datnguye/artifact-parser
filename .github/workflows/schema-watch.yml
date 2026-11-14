@@ -3,6 +3,13 @@ name: Schema watch
 # Probe schemas.getdbt.com for newly published dbt artifact versions, regenerate
 # the models, and open a PR if anything changed. Without this, a new manifest
 # version (v13, …) ships upstream and nobody notices until a user files a bug.
+#
+# The dbt 2.0 parquet info schema has no published schema to probe: its contract
+# is the parquet column layout a dbt engine writes. The `info-schema` job builds
+# the tiny DuckDB project in tests/data/info_schema_project/ with the latest dbt
+# OSS (the snapshot source) and dbt Fusion (cross-check), re-snapshots, and opens
+# a PR on drift. `codegen dbt-info-schema --snapshot-from` refuses an empty run or
+# a new `schema_version`, so a broken build or a v2 layout fails the job loudly.
 
 on:
   schedule:
@@ -56,3 +63,99 @@ jobs:
           add-paths: |
             src/artifact_parser/dbt/
             src/codegen/dbt/versions.py
+
+  info-schema:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      PROJECT: tests/data/info_schema_project
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies
+        run: uv sync --group dev
+
+      - name: Install the latest dbt OSS 2.x + DuckDB
+        id: oss
+        run: |
+          uv venv "$RUNNER_TEMP/oss"
+          uv pip install --python "$RUNNER_TEMP/oss/bin/python" --prerelease=allow \
+            "dbt-core>=2.0.0rc1" dbt-duckdb
+          echo "version=$("$RUNNER_TEMP/oss/bin/dbt" --version | head -1)" >> "$GITHUB_OUTPUT"
+
+      - name: Install the latest dbt Fusion
+        id: fusion
+        continue-on-error: true
+        run: |
+          curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh \
+            | sh -s -- --prefix "$RUNNER_TEMP/fusion"
+          echo "version=$("$RUNNER_TEMP/fusion/bin/dbt" --version | head -1)" >> "$GITHUB_OUTPUT"
+
+      - name: Build the sample project with dbt OSS
+        run: |
+          cp -R "$PROJECT" "$RUNNER_TEMP/isp-oss"
+          cd "$RUNNER_TEMP/isp-oss"
+          "$RUNNER_TEMP/oss/bin/dbt" build --profiles-dir . --generate-info-schema
+
+      - name: Build the sample project with dbt Fusion
+        if: steps.fusion.outcome == 'success'
+        continue-on-error: true
+        run: |
+          cp -R "$PROJECT" "$RUNNER_TEMP/isp-fusion"
+          cd "$RUNNER_TEMP/isp-fusion"
+          "$RUNNER_TEMP/fusion/bin/dbt" build --profiles-dir . \
+            --generate-info-schema --static-analysis strict
+
+      - name: Re-snapshot from dbt OSS + regenerate the models
+        run: |
+          uv run codegen dbt-info-schema --snapshot-from "$RUNNER_TEMP/isp-oss/target/info_schema/v1"
+          uv run ruff format .
+
+      - name: Cross-check the Fusion layout against the new snapshot
+        id: agree
+        run: |
+          uv run python - "$RUNNER_TEMP/isp-fusion/target/info_schema/v1" <<'EOF' | tee -a "$GITHUB_OUTPUT"
+          import json, sys
+          from pathlib import Path
+          from codegen.dbt_info_schema import generator
+          fusion = Path(sys.argv[1])
+          if not (fusion / generator.PROJECT_FILE).is_file():
+              print("result=⚠️ dbt Fusion did not produce an info schema; not cross-checked.")
+          elif generator.build_snapshot(fusion) == json.loads(generator.SNAPSHOT_PATH.read_text()):
+              print("result=✅ dbt Fusion writes the same parquet layout.")
+          else:
+              print("result=⚠️ dbt Fusion's parquet layout DIFFERS from dbt OSS — review before merging.")
+          EOF
+
+      - name: Verify the suite still passes at 100%
+        run: uv run pytest --cov=artifact_parser --cov=codegen --cov-fail-under=100
+
+      - name: Open a PR if the info-schema layout drifted
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: schema-watch/info-schema
+          title: "chore: regenerate info-schema models from the latest dbt layout"
+          commit-message: "chore: regenerate info-schema models from the latest dbt layout"
+          body: |
+            Automated by `schema-watch`. Building `tests/data/info_schema_project/`
+            with **${{ steps.oss.outputs.version }}** produced a different parquet
+            column layout, so the snapshot and the info-schema models were regenerated.
+
+            - Fusion cross-check (**${{ steps.fusion.outputs.version || 'not installed' }}**): ${{ steps.agree.outputs.result }}
+            - The 100%-coverage suite passed on the regenerated output.
+
+            Review before merging: a removed table/column is breaking for consumers
+            (dbterd, dbt-docs); a new JSON-text column must be added to `JSON_COLUMNS`
+            in `src/codegen/dbt_info_schema/generator.py` or it parses as a plain
+            string; consider refreshing the `tests/data/info_schema_v1_*` samples.
+          add-paths: |
+            src/artifact_parser/dbt_info_schema/

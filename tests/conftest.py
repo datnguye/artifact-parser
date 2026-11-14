@@ -1,5 +1,7 @@
 """Shared fixtures for the test suite (DRY — no per-test artifact literals)."""
 
+from pathlib import Path
+
 import pytest
 
 CATALOG_V1_URL = "https://schemas.getdbt.com/dbt/catalog/v1.json"
@@ -52,3 +54,25 @@ def sources_v3() -> dict:
 def run_results_v6() -> dict:
     """A minimal but valid ``run-results.json`` v6 artifact."""
     return _artifact(RUN_RESULTS_V6_URL, results=[], elapsed_time=0.0, args={})
+
+
+INFO_SCHEMA_DATA = Path(__file__).parent / "data"
+INFO_SCHEMA_SAMPLES = ("info_schema_v1_fusion", "info_schema_v1_oss")
+
+
+@pytest.fixture(params=INFO_SCHEMA_SAMPLES)
+def info_schema_dir(request: pytest.FixtureRequest) -> Path:
+    """Each real dbt 2.0 ``info_schema/v1`` sample directory (Fusion, OSS)."""
+    return INFO_SCHEMA_DATA / request.param
+
+
+@pytest.fixture
+def fusion_info_schema_dir() -> Path:
+    """The Fusion ``--static-analysis strict`` sample (has column lineage)."""
+    return INFO_SCHEMA_DATA / INFO_SCHEMA_SAMPLES[0]
+
+
+@pytest.fixture
+def info_schema_tables() -> dict:
+    """A minimal valid table dict for the info-schema plugin."""
+    return {"dbt.project": [{"schema_version": 1, "project_name": "p"}]}

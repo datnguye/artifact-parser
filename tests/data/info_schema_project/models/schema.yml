@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: customers
+    description: One row per customer.
+    columns:
+      - name: customer_id
+        data_tests: [not_null, unique]
+  - name: orders
+    description: One row per order.
+    columns:
+      - name: order_id
+        data_tests: [not_null, unique]
+      - name: customer_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('customers')
+                field: customer_id
+
+unit_tests:
+  - name: orders_keep_amount
+    model: orders
+    given:
+      - input: ref('raw_orders')
+        rows:
+          - {id: 1, customer_id: 1, amount: 5}
+    expect:
+      rows:
+        - {order_id: 1, customer_id: 1, amount: 5}

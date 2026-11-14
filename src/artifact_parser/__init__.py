@@ -2,7 +2,7 @@
 
 The framework is source-agnostic: each plugin owns one family of artifacts and
 registers itself with the shared :data:`~artifact_parser.core.registry.registry`.
-The first (and currently only) plugin parses dbt-core artifacts.
+Plugins parse dbt-core artifacts and dbt 2.0's parquet info schema.
 
 The headline entry point is :func:`parse`, which sniffs any supported artifact
 and routes it to the right plugin::
@@ -36,6 +36,15 @@ except ImportError:  # pragma: no cover - only when dbt/generated/ is dropped
     warnings.warn(
         "artifact_parser.dbt is unavailable (generated code missing). "
         "Run `codegen dbt` to rebuild it.",
+        stacklevel=2,
+    )
+
+try:
+    importlib.import_module("artifact_parser.dbt_info_schema")  # registers parquet
+except ImportError:  # pragma: no cover - only when its generated/ is dropped
+    warnings.warn(
+        "artifact_parser.dbt_info_schema is unavailable (generated code missing). "
+        "Run `codegen dbt-info-schema` to rebuild it.",
         stacklevel=2,
     )
 

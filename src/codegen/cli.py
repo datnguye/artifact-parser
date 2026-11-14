@@ -5,11 +5,14 @@ a pydantic model from it, and finally rewrites ``version_map.py`` so the
 schema-URL → model-class table always matches what's on disk.
 """
 
+from pathlib import Path
+
 import typer
 
 from codegen.dbt import generator
 from codegen.dbt.artifact_spec import ARTIFACT_SPECS
 from codegen.dbt.artifact_spec import ArtifactSpec
+from codegen.dbt_info_schema import generator as info_schema_generator
 
 app = typer.Typer(
     name="codegen",
@@ -82,6 +85,27 @@ def dbt(
     generator.write_generated_init()
     generator.write_version_map(specs)
     generator.write_parser(specs)
+    typer.secho(
+        "Done. Run `task format` to normalise the generated code.",
+        fg=typer.colors.GREEN,
+    )
+
+
+@app.command(name="dbt-info-schema")
+def dbt_info_schema(
+    snapshot_from: Path | None = typer.Option(
+        None,
+        "--snapshot-from",
+        help="A real `target/info_schema/v1` dir to re-derive the committed schema "
+        "snapshot from. Omit to regenerate the models from the committed snapshot.",
+    ),
+) -> None:
+    """Generate the dbt info-schema (parquet) models from the schema snapshot."""
+    if snapshot_from is not None:
+        typer.echo(f"snapshot <- {snapshot_from}")
+        info_schema_generator.write_snapshot(snapshot_from)
+    typer.echo(f"generate -> {info_schema_generator.MODEL_PATH.name}")
+    info_schema_generator.generate_model()
     typer.secho(
         "Done. Run `task format` to normalise the generated code.",
         fg=typer.colors.GREEN,
