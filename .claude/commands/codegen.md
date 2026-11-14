@@ -18,6 +18,15 @@ Steps:
    For fresh upstream schemas instead, drop `--skip-download` (optionally pass
    `--ref <dbt-core-ref>`).
 
+   Unless `$ARGUMENTS` scopes the run to one dbt artifact, also regenerate the
+   info-schema models from their committed snapshot (pass
+   `--snapshot-from <info_schema/v1 dir>` only when re-deriving the snapshot from
+   a fresh dbt run):
+
+   ```
+   uv run codegen dbt-info-schema
+   ```
+
 2. Normalise the generated code:
 
    ```
@@ -30,7 +39,8 @@ Steps:
    uv run pytest --cov=artifact_parser --cov=codegen --cov-fail-under=100 -q
    ```
 
-Report which files changed (`git status --short src/artifact_parser/dbt/`) and
-whether the suite still passes at 100%. Remember: never hand-edit the generated
-files — change the template (`src/codegen/dbt/templates/`) or the spec
-(`src/codegen/dbt/artifact_spec.py`) instead.
+Report which files changed (`git status --short src/artifact_parser/dbt/
+src/artifact_parser/dbt_info_schema/`) and whether the suite still passes at 100%.
+Remember: never hand-edit the generated files — change the template
+(`src/codegen/dbt/templates/`), the spec (`src/codegen/dbt/artifact_spec.py`), or
+the info-schema generator (`src/codegen/dbt_info_schema/generator.py`) instead.

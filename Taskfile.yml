@@ -43,9 +43,10 @@ tasks:
       - task: format
 
   codegen:regen:
-    desc: Regenerate all models from the *cached* schemas (no network). Run after editing resources/ by hand.
+    desc: Regenerate all models (dbt + info schema) from the committed inputs (no network). Run after editing resources/ by hand.
     cmds:
       - uv run python -m codegen dbt --skip-download
+      - uv run python -m codegen dbt-info-schema
       - task: format
 
   # Fingerprinted: only regenerates models whose source schema JSON actually

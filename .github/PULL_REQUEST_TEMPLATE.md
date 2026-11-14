@@ -21,8 +21,8 @@ Closes #
 - [ ] `task lint` passes (`ruff format` + `ruff check`)
 - [ ] `task test` passes at 100% coverage
 - [ ] Imports are at module top, no relative imports, one class per file
-- [ ] I did **not** hand-edit anything under `dbt/generated/` (regenerated via `task codegen` instead)
-- [ ] If generated output changed, I ran `task codegen` and committed the result (the CI in-sync gate will check this)
+- [ ] I did **not** hand-edit anything under a plugin's `generated/` (regenerated via `task codegen:regen` instead)
+- [ ] If generated output changed, I ran `task codegen:regen` and committed the result (the CI in-sync gate will check this)
 - [ ] Tests added/updated for the change (real-artifact round-trips in `tests/data/` if relevant)
 - [ ] Docs updated (README / CLAUDE.md) where behaviour or layout changed
 
