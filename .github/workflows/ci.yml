@@ -58,7 +58,8 @@ jobs:
       - name: Regenerate from the committed schemas
         run: |
           uv run codegen dbt --skip-download
+          uv run codegen dbt-info-schema
           uv run ruff format .
 
       - name: Fail if the generated code drifted from the committed output
-        run: git diff --exit-code -- src/artifact_parser/dbt/generated
+        run: git diff --exit-code -- src/artifact_parser/dbt/generated src/artifact_parser/dbt_info_schema/generated

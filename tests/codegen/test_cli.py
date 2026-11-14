@@ -106,3 +106,26 @@ def test_main_invokes_app() -> None:
     with mock.patch.object(cli, "app") as app_mock:
         cli.main()
     app_mock.assert_called_once_with()
+
+
+def test_dbt_info_schema_from_committed_snapshot() -> None:
+    with (
+        mock.patch("codegen.cli.info_schema_generator.write_snapshot") as snap,
+        mock.patch("codegen.cli.info_schema_generator.generate_model") as gen,
+    ):
+        result = runner.invoke(app, ["dbt-info-schema"])
+    assert result.exit_code == 0
+    assert not snap.called
+    assert gen.called
+
+
+def test_dbt_info_schema_rebuilds_snapshot(tmp_path) -> None:
+    with (
+        mock.patch("codegen.cli.info_schema_generator.write_snapshot") as snap,
+        mock.patch("codegen.cli.info_schema_generator.generate_model"),
+    ):
+        result = runner.invoke(
+            app, ["dbt-info-schema", "--snapshot-from", str(tmp_path)]
+        )
+    assert result.exit_code == 0
+    snap.assert_called_once_with(tmp_path)

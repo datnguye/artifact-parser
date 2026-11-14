@@ -68,6 +68,12 @@ tasks:
       - uv run python -m codegen dbt --skip-download
       - task: format
 
+  codegen:info-schema:
+    desc: 'Regenerate the info-schema models from the committed snapshot. Pass `-- --snapshot-from <info_schema/v1 dir>` to re-derive the snapshot first.'
+    cmds:
+      - uv run python -m codegen dbt-info-schema {{.CLI_ARGS}}
+      - task: format
+
   git-hooks:
     desc: Install pre-commit and commit-msg git hooks.
     cmds:
