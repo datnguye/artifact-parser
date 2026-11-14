@@ -7,6 +7,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
+from artifact_parser.core.exceptions import UnknownArtifactError
 from artifact_parser.dbt_info_schema import base
 from artifact_parser.dbt_info_schema import loader
 from codegen.dbt_info_schema import generator
@@ -62,3 +63,22 @@ def test_build_snapshot_skips_internal_tables(tmp_path) -> None:
     pq.write_table(pa.table({"a": ["x"]}), tmp_path / "dbt_internal.t.parquet")
     pq.write_table(pa.table({"a": ["x"]}), tmp_path / "dbt.t.parquet")
     assert list(generator.build_snapshot(tmp_path)["definitions"]) == ["DbtT"]
+
+
+def test_snapshot_version_reads_project_table(info_schema_dir) -> None:
+    assert generator.snapshot_version(info_schema_dir) == generator.SNAPSHOT_VERSION
+
+
+@pytest.mark.parametrize("version", [None, 2])
+def test_write_snapshot_refuses_non_snapshot_dirs(
+    tmp_path, monkeypatch, version
+) -> None:
+    target = tmp_path / "snap.json"
+    monkeypatch.setattr(generator, "SNAPSHOT_PATH", target)
+    if version is not None:
+        pq.write_table(
+            pa.table({"schema_version": [version]}), tmp_path / generator.PROJECT_FILE
+        )
+    with pytest.raises(UnknownArtifactError):
+        generator.write_snapshot(tmp_path)
+    assert not target.exists()

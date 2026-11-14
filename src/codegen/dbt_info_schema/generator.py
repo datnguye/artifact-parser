@@ -14,11 +14,16 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 import artifact_parser
+from artifact_parser.core.exceptions import UnknownArtifactError
 
 PACKAGE_DIR = Path(artifact_parser.__file__).resolve().parent
 INFO_SCHEMA_DIR = PACKAGE_DIR / "dbt_info_schema"
-SNAPSHOT_PATH = INFO_SCHEMA_DIR / "resources" / "info_schema_v1.json"
-MODEL_PATH = INFO_SCHEMA_DIR / "generated" / "models" / "info_schema_v1.py"
+SNAPSHOT_VERSION = 1
+SNAPSHOT_PATH = INFO_SCHEMA_DIR / "resources" / f"info_schema_v{SNAPSHOT_VERSION}.json"
+MODEL_PATH = (
+    INFO_SCHEMA_DIR / "generated" / "models" / f"info_schema_v{SNAPSHOT_VERSION}.py"
+)
+PROJECT_FILE = "dbt.project.parquet"
 
 JSON_EXTRA_KEY = "x-json"
 PUBLIC_PREFIXES = ("dbt.", "dbt_rt.")
@@ -118,8 +123,39 @@ def build_snapshot(info_schema_dir: Path) -> dict:
     }
 
 
+def snapshot_version(info_schema_dir: Path) -> int:
+    """Return ``dbt.project.schema_version`` of a real info-schema directory.
+
+    Raises:
+        UnknownArtifactError: if the directory has no ``dbt.project`` table — so
+            an empty or failed dbt run can never be snapshotted as "every table
+            was removed".
+    """
+    project = info_schema_dir / PROJECT_FILE
+    if not project.is_file():
+        raise UnknownArtifactError(
+            f"{info_schema_dir} has no {PROJECT_FILE}; "
+            "run dbt with --generate-info-schema."
+        )
+    rows = pq.read_table(project, columns=["schema_version"]).to_pylist()
+    return rows[0]["schema_version"]
+
+
 def write_snapshot(info_schema_dir: Path) -> None:
-    """Rewrite the committed schema snapshot from a real info-schema directory."""
+    """Rewrite the committed schema snapshot from a real info-schema directory.
+
+    Raises:
+        UnknownArtifactError: if the directory is not an info schema, or its
+            ``schema_version`` is not :data:`SNAPSHOT_VERSION` — a new parquet
+            layout needs a new snapshot, model module and ``VERSION_MODELS`` row,
+            not an in-place overwrite of the current one.
+    """
+    version = snapshot_version(info_schema_dir)
+    if version != SNAPSHOT_VERSION:
+        raise UnknownArtifactError(
+            f"info schema version {version!r} is not the snapshotted "
+            f"v{SNAPSHOT_VERSION}; add a new layout instead of overwriting."
+        )
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
     snapshot = build_snapshot(info_schema_dir)
     SNAPSHOT_PATH.write_text(json.dumps(snapshot, indent=2) + "\n")
