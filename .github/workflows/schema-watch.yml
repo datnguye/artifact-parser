@@ -123,7 +123,7 @@ jobs:
       - name: Cross-check the Fusion layout against the new snapshot
         id: agree
         run: |
-          uv run python - "$RUNNER_TEMP/isp-fusion/target/info_schema/v1" >> "$GITHUB_OUTPUT" <<'EOF'
+          uv run python - "$RUNNER_TEMP/isp-fusion/target/info_schema/v1" <<'EOF' | tee -a "$GITHUB_OUTPUT"
           import json, sys
           from pathlib import Path
           from codegen.dbt_info_schema import generator
