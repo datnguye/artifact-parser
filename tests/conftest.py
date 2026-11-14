@@ -56,13 +56,20 @@ def run_results_v6() -> dict:
     return _artifact(RUN_RESULTS_V6_URL, results=[], elapsed_time=0.0, args={})
 
 
+INFO_SCHEMA_DATA = Path(__file__).parent / "data"
 INFO_SCHEMA_SAMPLES = ("info_schema_v1_fusion", "info_schema_v1_oss")
 
 
 @pytest.fixture(params=INFO_SCHEMA_SAMPLES)
 def info_schema_dir(request: pytest.FixtureRequest) -> Path:
     """Each real dbt 2.0 ``info_schema/v1`` sample directory (Fusion, OSS)."""
-    return Path(__file__).parent / "data" / request.param
+    return INFO_SCHEMA_DATA / request.param
+
+
+@pytest.fixture
+def fusion_info_schema_dir() -> Path:
+    """The Fusion ``--static-analysis strict`` sample (has column lineage)."""
+    return INFO_SCHEMA_DATA / INFO_SCHEMA_SAMPLES[0]
 
 
 @pytest.fixture

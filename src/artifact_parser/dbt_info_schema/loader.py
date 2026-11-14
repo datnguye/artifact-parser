@@ -19,11 +19,6 @@ except ImportError:  # pragma: no cover - exercised by patching ``pq`` to None
 PUBLIC_PREFIXES = ("dbt.", "dbt_rt.")
 
 
-def table_name(path: Path) -> str:
-    """Return ``<schema>.<table>`` for a ``<schema>.<table>.parquet`` file."""
-    return path.name.removesuffix(".parquet")
-
-
 def load_info_schema(path: str | Path) -> dict[str, list[dict]]:
     """Return ``{"dbt.models": [row, ...], ...}`` for every public table in ``path``.
 
@@ -36,9 +31,9 @@ def load_info_schema(path: str | Path) -> dict[str, list[dict]]:
             "pip install 'artifact-parser[info-schema]'."
         )
     return {
-        table_name(file): pq.read_table(file).to_pylist()
+        file.stem: pq.read_table(file).to_pylist()
         for file in sorted(Path(path).glob("*.parquet"))
-        if table_name(file).startswith(PUBLIC_PREFIXES)
+        if file.stem.startswith(PUBLIC_PREFIXES)
     }
 
 

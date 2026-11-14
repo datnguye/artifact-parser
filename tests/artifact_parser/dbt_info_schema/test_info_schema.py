@@ -1,7 +1,5 @@
 """Tests for the dbt info-schema (parquet) plugin."""
 
-from pathlib import Path
-
 import pytest
 
 from artifact_parser import parse
@@ -41,11 +39,8 @@ def test_json_columns_are_decoded(info_schema_dir) -> None:
     assert isinstance(info.dbt_unit_tests[0].given, list)
 
 
-def test_fusion_sample_has_column_lineage() -> None:
-    info = parse_info_schema(
-        Path(__file__).parents[2] / "data" / "info_schema_v1_fusion"
-    )
-    assert info.dbt_column_lineage
+def test_fusion_sample_has_column_lineage(fusion_info_schema_dir) -> None:
+    assert parse_info_schema(fusion_info_schema_dir).dbt_column_lineage
 
 
 def test_registry_dispatch(info_schema_tables) -> None:

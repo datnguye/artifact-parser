@@ -93,7 +93,7 @@ def build_snapshot(info_schema_dir: Path) -> dict:
     definitions: dict[str, dict] = {}
     properties: dict[str, dict] = {}
     for path in sorted(info_schema_dir.glob("*.parquet")):
-        table = path.name.removesuffix(".parquet")
+        table = path.stem
         if not table.startswith(PUBLIC_PREFIXES):
             continue
         schema = pq.read_schema(path)

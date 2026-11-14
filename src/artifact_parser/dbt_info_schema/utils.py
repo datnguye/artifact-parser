@@ -14,14 +14,14 @@ def get_info_schema_version(artifact: dict) -> int:
     """Return ``schema_version`` from the ``dbt.project`` table.
 
     Raises:
-        UnknownArtifactError: if the table, its row, or the version is missing.
+        UnknownArtifactError: if the table or its row is missing. A missing
+            ``schema_version`` comes back as ``None``, which
+            :func:`get_model_class` rejects.
     """
     rows = artifact.get(PROJECT_TABLE)
     if not isinstance(rows, list) or not rows or not isinstance(rows[0], dict):
         raise UnknownArtifactError(f"{PROJECT_TABLE!r} table is missing or empty.")
-    if "schema_version" not in rows[0]:
-        raise UnknownArtifactError(f"{PROJECT_TABLE}.schema_version is missing.")
-    return rows[0]["schema_version"]
+    return rows[0].get("schema_version")
 
 
 def get_model_class(schema_version: int) -> type[BaseArtifactModel]:
