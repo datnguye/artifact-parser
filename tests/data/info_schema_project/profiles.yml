@@ -1,0 +1,7 @@
+info_schema_project:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: target/info_schema_project.duckdb
+      threads: 1

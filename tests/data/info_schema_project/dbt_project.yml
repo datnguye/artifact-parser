@@ -1,0 +1,5 @@
+name: info_schema_project
+version: "1.0.0"
+profile: info_schema_project
+seed-paths: ["seeds"]
+model-paths: ["models"]
